@@ -1,0 +1,60 @@
+#! /usr/bin/env python
+
+import os
+import sys
+
+data = {
+    '2.3.1': {
+        'community': {
+            'sha': '7b2f30d73af107eacd9a3a619475ef448a08eecb2cdb42ab1f8a38d091c70ecb'
+        },
+        'enterprise': {
+            'sha': '93f0950b0c3a5a604f80183814b7cda2988a652e9278159c47d036daa96e3d29'
+        }
+    },
+    '2.2.7': {
+        'community': {
+            'sha': '79d96471a5e8aa08ae2a7d78b0a2ff6d587fe13125205a9a4dc9705766e1cd25'
+        }
+    },
+    '2.1.8': {
+        'community': {
+            'sha': 'faf209dbeef9851c88717660a4b7ccb5110343a9ed53110f516b675c8230c39a'
+        }
+    },
+    'dev': {
+        'dev': {
+            'version': os.environ['DEV_VERSION'],
+            'edition': os.environ['DEV_EDITION'],
+            'sha': os.environ['DEV_SHA'],
+            'root': 'file:///docker-test/',
+            'inject': 'COPY ./neo4j-package.tar.gz /docker-test/$NEO4J_TARBALL',
+        }
+    }
+}
+
+for version, editions in data.iteritems():
+    for edition, details in editions.iteritems():
+        if not 'version' in details:
+            details['version'] = version
+        if not 'edition' in details:
+            details['edition'] = edition
+        if not 'root' in details:
+            details['root'] = 'http://dist.neo4j.org'
+        if not 'inject' in details:
+            details['inject'] = ''
+
+tag = os.environ['TAG']
+detail = sys.argv[1]
+
+if tag == 'dev':
+    version = 'dev'
+    edition = 'dev'
+elif tag.endswith('-enterprise'):
+    version = tag.replace('-enterprise', '')
+    edition = 'enterprise'
+else:
+    version = tag
+    edition = 'community'
+
+print data[version][edition][detail]
