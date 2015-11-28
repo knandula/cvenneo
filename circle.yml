@@ -1,9 +1,5 @@
 deployment:
   dockerhub:
     branch: master
-    commands:       
+    commands:
        - $DOCKER_HUB_DBTRIGGER
-
-test:
-  override:
-     - mocha
